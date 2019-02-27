@@ -1,4 +1,4 @@
-pragma solidity ^0.4.19;
+pragma solidity ^0.5.4;
 // Our first contract is a faucet!
 contract Faucet {
 
@@ -13,6 +13,6 @@ contract Faucet {
     }
 
     // Accept any incoming amount
-    function () public payable {}
+    function () external payable {}
 
 }
