@@ -1,12 +1,32 @@
 pragma solidity ^0.5.4;
-// Our first contract is a faucet!
-contract Faucet {
-	 address payable owner;
+contract owned {
+  address payable owner;
 
-   modifier onlyOwner {
-     require(msg.sender == owner, "Only the contract owner can call this function");
-     _;
-   }
+	// Contract constructor: set owner
+	constructor() public {
+		owner = msg.sender;
+	}
+
+  // Access control modifier
+  modifier onlyOwner {
+    require(msg.sender == owner, "Only the contract owner can call this function");
+    _;
+  }
+}
+
+contract mortal is owned {
+	// Contract destructor
+	function destroy() public onlyOwner {
+		selfdestruct(owner);
+	}
+}
+
+
+
+// Our first contract is a faucet!
+contract Faucet is mortal {
+    event Withdrawal(address indexed to, uint amount);
+    event Deposit(address indexed from, uint amount);
 
   	// Initialize Faucet contract: set owner
   	constructor() public {
@@ -22,14 +42,12 @@ contract Faucet {
         	"Insufficient balance in faucet for withdrawal request");
         // Send the amount to the address that requested it
         msg.sender.transfer(withdraw_amount);
+        emit Withdrawal(msg.sender, withdraw_amount);
     }
 
     // Accept any incoming amount
-    function () external payable {}
-
-    // Contract destructor
-    function destroy() public onlyOwner {
-	    selfdestruct(owner);
+    function () external payable {
+      emit Deposit(msg.sender, msg.value);
     }
 
 }
